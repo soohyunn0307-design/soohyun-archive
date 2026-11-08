@@ -1,0 +1,563 @@
+/* =========================================================
+   Lee Soohyun — Web Archive (기획안 기반)
+   키워드: 잔상 — 흐릿한 레이어가 덮인 분위기 + 깔끔하게 정리된 이미지 배치
+   ========================================================= */
+
+:root {
+    --bg: #fdfcfa;          /* 따뜻한 흰색 */
+    --ink: #111111;
+    --text: #555555;        /* 메뉴, 본문 회색 */
+    --muted: #9a958e;
+    --faint: #cfcac2;       /* 비활성 별 */
+    --line: #555555;
+
+    --font: Arial, Helvetica, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --gutter: 5%;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+}
+
+img {
+    display: block;
+    max-width: 100%;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+button {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    cursor: pointer;
+}
+
+/* =========================================================
+   상단 메뉴
+   ========================================================= */
+.site-header {
+    position: relative;
+    z-index: 50;
+    width: 100%;
+    padding: 55px var(--gutter) 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+}
+
+/* 메인 화면에서는 이미지 위에 겹쳐 놓음 */
+.page-home .site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+}
+
+.page-home .site-header a {
+    pointer-events: auto;
+}
+
+.logo {
+    font-size: 40px;
+    font-weight: 400;
+    color: #000;
+    white-space: nowrap;
+}
+
+.site-nav {
+    display: flex;
+    align-items: center;
+    gap: clamp(24px, 4.2vw, 72px);
+    margin-right: 4%;
+}
+
+.site-nav a {
+    font-size: 20px;
+    color: var(--text);
+    white-space: nowrap;
+    transition: color 0.2s ease;
+}
+
+.site-nav a:hover {
+    color: #000;
+}
+
+/* 아직 열리지 않은 탭 (제출용 버전) */
+.site-nav .is-disabled {
+    font-size: 20px;
+    color: #c9c5bf;
+    white-space: nowrap;
+    cursor: default;
+}
+
+@media (max-width: 760px) {
+    .site-nav .is-disabled { font-size: 16px; }
+}
+
+.site-nav a[aria-current="page"] {
+    font-weight: 700;
+    color: var(--text);
+}
+
+/* =========================================================
+   메인 — 떠다니는 흐릿한 디테일 컷
+   ========================================================= */
+.drift-stage {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+}
+
+.frag {
+    position: absolute;
+    display: block;
+    will-change: transform;
+    cursor: pointer;
+    /* 흐릿해졌다 조금 선명해졌다를 천천히 반복 */
+    animation: breathe var(--dur, 12s) ease-in-out var(--delay, 0s) infinite alternate;
+}
+
+.frag img {
+    width: 100%;
+    height: auto;
+    pointer-events: none;
+    user-select: none;
+}
+
+@keyframes breathe {
+    from { filter: blur(var(--b1, 2px)); opacity: var(--o1, 0.9); }
+    to   { filter: blur(var(--b2, 7px)); opacity: var(--o2, 0.6); }
+}
+
+/* 마우스를 올리면 그 컷만 선명하게 */
+.frag:hover,
+.frag:focus-visible {
+    z-index: 30 !important;
+    filter: blur(0) !important;
+    opacity: 1 !important;
+    outline: none;
+}
+
+.drift-stage.has-focus .frag:not(:hover) {
+    opacity: 0.35 !important;
+}
+
+/* 컷 위에 마우스를 올렸을 때 아래에 뜨는 작품 정보 */
+.frag-caption {
+    position: fixed;
+    left: var(--gutter);
+    bottom: 36px;
+    z-index: 60;
+    font-size: 14px;
+    color: var(--text);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.frag-caption.is-on {
+    opacity: 1;
+}
+
+/* Artist's notes 배경용: 클릭되지 않는 옅은 버전 */
+/* 화면 오른쪽 30% 안에서만 떠다님 */
+.drift-stage.is-ambient {
+    left: auto;
+    top: 140px;
+    width: 30%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.drift-stage.is-ambient .frag {
+    cursor: default;
+}
+
+@media (max-width: 1300px) {
+    .drift-stage.is-ambient { display: none; }
+}
+
+/* =========================================================
+   공통 레이아웃
+   ========================================================= */
+.container {
+    width: 100%;
+    padding: 0 var(--gutter) 120px;
+}
+
+.sort {
+    font-size: 20px;
+    color: var(--text);
+    line-height: 1.3;
+    margin: 0 0 70px 6px;
+}
+
+.sort button {
+    color: var(--text);
+}
+
+.sort button.is-active {
+    font-weight: 700;
+}
+
+.empty {
+    padding: 60px 0;
+    text-align: center;
+    font-size: 22px;
+    color: var(--text);
+}
+
+/* =========================================================
+   그리드 (Works · Drawings · Journal)
+   ========================================================= */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 60px 40px;
+}
+
+.tile {
+    display: block;
+}
+
+.tile .cap {
+    margin-top: 16px;
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--text);
+}
+
+/* ---------- 잔상 효과 (장노출 궤적) ----------
+   커서를 움직이는 동안에만 이미지 위에 캔버스를 띄워 번지는 궤적을 그림 */
+.ai {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: var(--ratio, 5 / 4);
+    background: #eeebe6;
+}
+
+.ai img,
+.ai canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.ai .ai-trail {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.ai.is-trailing .ai-trail {
+    opacity: 1;
+}
+
+/* =========================================================
+   작품 상세 / 사진 상세
+   ========================================================= */
+.detail {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: 8%;
+    align-items: start;
+    padding-top: 60px;
+}
+
+.detail-media img {
+    width: 100%;
+    height: auto;
+}
+
+.detail-info {
+    max-width: 420px;
+    padding-top: 12px;
+}
+
+.detail-info h1 {
+    font-size: 20px;
+    font-weight: 400;
+    color: #000;
+    margin-bottom: 40px;
+}
+
+.detail-info .meta {
+    font-size: 16px;
+    line-height: 1.4;
+    color: var(--text);
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--line);
+    white-space: pre-line;
+}
+
+.detail-info .comment {
+    margin-top: 40px;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--text);
+    white-space: pre-line;
+}
+
+.detail-cuts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 380px));
+    justify-content: center;
+    gap: 140px;
+    margin-top: 160px;
+}
+
+.detail-cuts img {
+    width: 100%;
+    height: auto;
+}
+
+.detail-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 120px;
+    font-size: 15px;
+    color: var(--text);
+}
+
+.detail-nav a:hover {
+    color: #000;
+}
+
+.section-label {
+    margin: 140px 0 30px;
+    text-align: center;
+    font-size: 18px;
+    color: var(--text);
+}
+
+.grid--three {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+/* =========================================================
+   Journal — 별점
+   ========================================================= */
+.star-tabs {
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    gap: 28px;
+    font-size: 28px;
+    letter-spacing: 2px;
+    color: var(--faint);
+}
+
+.star-tabs button,
+.star-tabs a {
+    color: var(--faint);
+    transition: color 0.2s ease;
+}
+
+.star-tabs button:hover,
+.star-tabs a:hover {
+    color: var(--text);
+}
+
+.star-tabs button.is-active,
+.star-tabs a.is-active {
+    color: #333;
+}
+
+.star-tabs .all {
+    font-size: 16px;
+    letter-spacing: 0;
+}
+
+.star-legend {
+    margin: 14px 0 70px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--muted);
+}
+
+/* 방문자 별점 */
+.rate {
+    margin-top: 80px;
+    text-align: right;
+}
+
+.rate-options {
+    display: inline-flex;
+    gap: 22px;
+    font-size: 26px;
+    letter-spacing: 1px;
+}
+
+.rate-options button {
+    color: #222;
+    transition: transform 0.15s ease;
+}
+
+.rate-options button:hover {
+    transform: translateY(-2px);
+}
+
+.rate-options button.is-chosen {
+    color: #222;
+}
+
+.rate-note {
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--muted);
+}
+
+/* =========================================================
+   Artist's notes
+   ========================================================= */
+.notes {
+    position: relative;
+    z-index: 1;
+    max-width: 920px;
+    padding: 60px 0 0 1%;
+}
+
+.notes p {
+    font-size: 17px;
+    line-height: 1.75;
+    color: var(--text);
+    margin-bottom: 1.4em;
+    word-break: keep-all;
+}
+
+.notes p[lang="en"] {
+    color: #222;
+}
+
+.notes p + p[lang="en"] {
+    margin-top: 2.6em;
+}
+
+/* =========================================================
+   Contact
+   ========================================================= */
+.contact {
+    text-align: center;
+    padding-top: 20px;
+}
+
+.contact img {
+    width: min(1100px, 100%);
+    aspect-ratio: 2.15 / 1;
+    object-fit: cover;
+    margin: 0 auto;
+}
+
+.contact-lines {
+    margin-top: 44px;
+    font-size: 20px;
+    line-height: 2.4;
+}
+
+.contact-lines a:hover {
+    color: var(--text);
+}
+
+/* =========================================================
+   CV
+   ========================================================= */
+.cv {
+    text-align: center;
+    padding-top: 70px;
+    font-size: 18px;
+    line-height: 1.45;
+    color: var(--text);
+}
+
+.cv h1 {
+    font-size: 19px;
+    color: #000;
+    margin-bottom: 44px;
+}
+
+.cv h2 {
+    font-size: 19px;
+    color: #000;
+    margin: 36px 0 4px;
+}
+
+.cv .tbd {
+    color: var(--muted);
+}
+
+/* =========================================================
+   반응형
+   ========================================================= */
+@media (max-width: 1100px) {
+    .site-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 28px;
+        padding: 40px var(--gutter) 36px;
+    }
+
+    .site-nav {
+        flex-wrap: wrap;
+        gap: 14px 30px;
+        margin-right: 0;
+    }
+
+    .grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 760px) {
+    :root {
+        --gutter: 20px;
+    }
+
+    .logo { font-size: 30px; }
+    .site-nav a { font-size: 16px; }
+
+    .grid,
+    .grid--three {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 36px 16px;
+    }
+
+    .detail {
+        grid-template-columns: 1fr;
+        gap: 36px;
+        padding-top: 20px;
+    }
+
+    .detail-cuts {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        margin-top: 80px;
+    }
+
+    .drift-stage.is-ambient {
+        display: none;
+    }
+
+    .sort { margin-bottom: 40px; }
+    .contact-lines { font-size: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .frag { animation: none; filter: blur(3px); }
+}
