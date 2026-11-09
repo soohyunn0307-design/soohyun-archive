@@ -554,7 +554,7 @@ button {
         display: none;
     }
 
-    .sort { margin-bottom: 40px; }
+    .sort { margin-bottom: 40px; font-size: 15px; }   /* 휴대폰에서만 Latest / Earliest 작게 */
     .contact-lines { font-size: 16px; }
 }
 
